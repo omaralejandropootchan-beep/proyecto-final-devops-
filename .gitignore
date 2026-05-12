@@ -1,0 +1,14 @@
+# Python & VirtualEnvs
+__pycache__/
+venv/
+.venv/
+
+# AWS & Cloud9
+.aws/
+.c9/
+*.pem
+.env
+
+# Docker & OS
+*.log
+.DS_Store
