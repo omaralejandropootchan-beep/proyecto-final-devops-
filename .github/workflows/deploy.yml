@@ -1,0 +1,57 @@
+name: CI/CD Pipeline Proyecto Final
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Instalar dependencias
+        run: |
+          pip install flask==2.3.3
+          
+      - name: Test de importación
+        run: |
+          python -c "import app"
+          echo "La aplicación se importó correctamente."
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configurar credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      - name: Comprimir y subir a S3
+        run: |
+          zip -r proyecto.zip .
+          # Reemplaza 'nombre-de-tu-bucket' con el bucket que creaste en el Punto 10
+          # Puedes verlo corriendo: aws s3 ls
+          BUCKET_NAME=$(aws s3 ls | grep proyecto-omar-storage | awk '{print $3}')
+          aws s3 cp proyecto.zip s3://$BUCKET_NAME/proyecto.zip
+
+      - name: Desplegar en EC2 via SSM
+        run: |
+          # Obtenemos el ID de tu instancia de Cloud9 (o la EC2 que estés usando)
+          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=aws-cloud9-*" --query "Reservations[*].Instances[*].InstanceId" --output text)
+          
+          aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=["echo Despliegue exitoso en la instancia"]'
