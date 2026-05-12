@@ -1,16 +1,19 @@
-from flask import Flask
-import os
+import json
+import random
 
-app = Flask(__name__)
-
-@app.get('/')
-def home():
+def lambda_handler(event, context):
+    mensajes = [
+        "Infraestructura desplegada con éxito",
+        "Pipeline de CI/CD funcionando al 100%",
+        "Dockerización completada por Omar",
+        "Seguridad aplicada en Security Groups",
+        "Monitoreo activo en CloudWatch"
+    ]
+    
     return {
-        "mensaje": "¡Hola desde Docker en AWS!",
-        "usuario": "Omar Alejandro",
-        "proyecto": "Final DevOps",
-        "status": "Contenedor funcionando"
+        'statusCode': 200,
+        'body': json.dumps({
+            'mensaje': random.choice(mensajes),
+            'servicio': 'microservicio-devops'
+        })
     }
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80)
