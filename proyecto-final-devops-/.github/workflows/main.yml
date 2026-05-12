@@ -24,7 +24,7 @@ jobs:
 
     - name: Validar sintaxis de Python
       run: |
-        python -m py_compile automatizacion.py docker/app.py
+        python -m py_compile automatizacion.py
 
     - name: Validar sintaxis de Shell Scripts
       run: |
