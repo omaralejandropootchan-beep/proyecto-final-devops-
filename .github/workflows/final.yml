@@ -1,0 +1,22 @@
+name: Pipeline Final OK
+
+on:
+  push:
+    branches: [ "develop", "main" ]
+  pull_request:
+    branches: [ "develop", "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del codigo
+        uses: actions/checkout@v4
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+      - name: Validar Sintaxis
+        run: |
+          python -m py_compile automatizacion.py
+          bash -n setup.sh usuarios.sh limpieza_logs.sh
